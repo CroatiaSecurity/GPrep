@@ -1,9 +1,11 @@
 @echo off
+setlocal
+cd /d "%~dp0"
+
+set "VERSION=1.0.0"
+
 REM Build GPrep.cpl - requires Visual Studio or Windows SDK
 REM Run from Developer Command Prompt, or adjust path to cl.exe
-
-setlocal
-set CPATH=%~dp0
 
 where cl.exe >nul 2>&1
 if errorlevel 1 (
@@ -26,11 +28,18 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo Building GPrep.cpl...
-cl /nologo /LD /O2 /W3 GPrep.c shell32.lib /Fe:GPrep.cpl /link /DEF:GPrep.def
+if not exist "..\..\releases\%VERSION%" mkdir "..\..\releases\%VERSION%"
+
+echo Building GPrep.cpl v%VERSION%...
+cl /nologo /LD /O2 /W3 GPrep.c shell32.lib /Fe:"..\..\releases\%VERSION%\GPrep.cpl" /link /DEF:GPrep.def
 if errorlevel 1 exit /b 1
 
 echo.
-echo Build complete: %CPATH%GPrep.cpl
-echo Copy GPrep.cpl, GPrepUI.hta, GPrepHelper.ps1, and manifest.json to the same folder.
+echo Copying additional files...
+copy /Y "GPrepUI.hta"      "..\..\releases\%VERSION%\"
+copy /Y "GPrepHelper.ps1"  "..\..\releases\%VERSION%\"
+copy /Y "manifest.json"    "..\..\releases\%VERSION%\" 2>nul
+
+echo.
+echo Build complete: releases\%VERSION%\GPrep.cpl
 exit /b 0
